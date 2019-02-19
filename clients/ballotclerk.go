@@ -1,4 +1,4 @@
-package ballotclerk
+package main
 
 import (
 	"encoding/pem"

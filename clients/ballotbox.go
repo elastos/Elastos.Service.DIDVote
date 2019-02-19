@@ -1,9 +1,8 @@
-package ballotbox
+package main
 
 import (
 	"bufio"
 	"bytes"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -17,16 +16,16 @@ var (
 	ErrGetBallot = errors.New("ballotbox: Unable to GET ballot")
 )
 
-// Client provides access to the ballotclerk REST service
-type Client struct {
-	BaseURL    string
-	HTTPClient http.Client
-}
-
-// NewClient creates a new atomx.Client for working with the extract Service
-func NewClient(baseurl string) *Client {
-	return &Client{BaseURL: baseurl, HTTPClient: http.Client{}}
-}
+//// Client provides access to the ballotclerk REST service
+//type Client struct {
+//	BaseURL    string
+//	HTTPClient http.Client
+//}
+//
+//// NewClient creates a new atomx.Client for working with the extract Service
+//func NewClient(baseurl string) *Client {
+//	return &Client{BaseURL: baseurl, HTTPClient: http.Client{}}
+//}
 
 // PutBallot PUTs a single ballot into the ballotbox
 func (c *Client) PutBallot(ballot *cryptoballot.Ballot) error {
@@ -112,12 +111,12 @@ func (c *Client) GetAllBallots(electionID string) ([]*cryptoballot.Ballot, error
 
 // ResponseDrainAndClose drains a response of it's body and closes it
 // It should be used in a defer statement when doing an HTTP request
-func ResponseDrainAndClose(resp *http.Response) {
-	if resp != nil {
-		_, _ = io.Copy(ioutil.Discard, resp.Body)
-		_ = resp.Body.Close()
-	}
-}
+//func ResponseDrainAndClose(resp *http.Response) {
+//	if resp != nil {
+//		_, _ = io.Copy(ioutil.Discard, resp.Body)
+//		_ = resp.Body.Close()
+//	}
+//}
 
 // scanBallots takes a stream of data and splits the ballots by '\n\n\n', so that ballots can be parsed while streaming
 // For use in a bufio.Scanner
