@@ -1,0 +1,4 @@
+package: github.com/elastos/Elastos.Service.DIDVote
+import:
+- package: github.com/cryptoballot/entropychecker
+- package: github.com/phayes/decryptpem
