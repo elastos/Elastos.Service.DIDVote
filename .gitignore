@@ -1,2 +1,4 @@
 /vendor/*
 glide.lock
+/example/servers/electionclerk
+/example/clients

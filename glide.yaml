@@ -8,7 +8,7 @@ import:
 - package: github.com/phayes/decryptpem
 - package: github.com/urfave/cli
 - package: github.com/Sam-Izdat/govote
-- package: github.com/lib/pq
+- package: github.com/go-sql-driver/mysql
 - package: github.com/dlintw/goconf
 - package: golang.org/x/crypto
   repo: https://github.com/golang/crypto.git

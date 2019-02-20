@@ -4,23 +4,21 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 )
 
 const (
-	ballotsQuery = `CREATE EXTENSION IF NOT EXISTS hstore;
-					CREATE TABLE ballots_<election-id> (
-					  ballot_id char(128) NOT NULL, --@@TODO: change to 64 on move to SHA256
-					  tags hstore, 
+	ballotsQuery = `CREATE TABLE ballots_<election-id> (
+					  ballot_id varchar(128) NOT NULL, -- TODO: change to 64 on move to SHA256
+					  tags text,
 					  ballot text NOT NULL
 					);
-					CREATE INDEX ballot_id_idx_<election-id> ON ballots_<election-id> (ballot_id);
-					CREATE INDEX tags_idx_<election-id> on ballots_<election-id> (tags);`
+					`
+	ballotsQueryIndex = `CREATE INDEX ballot_id_idx_<election-id> ON ballots_<election-id> (ballot_id);`
 )
 
 var (
@@ -33,13 +31,10 @@ var (
 type config struct {
 	configFilePath string
 	database       struct {
-		host               string
-		port               int
-		user               string
-		password           string
-		dbname             string
+		driver 			   string
 		sslmode            string
 		maxIdleConnections int
+		connMaxLifetime	   int
 	}
 	port             int                 // Listen port -- generally it should be 443
 	readmePath       string              // Path to the readme file
@@ -144,6 +139,10 @@ func syncElectionToDB(elections map[string]Election) error {
 		} else {
 			// Create missing table
 			_, err = db.Exec(strings.Replace(ballotsQuery, "<election-id>", electionID, -1))
+			if err != nil {
+				return err
+			}
+			_, err = db.Exec(strings.Replace(ballotsQueryIndex, "<election-id>", electionID, -1))
 			if err != nil {
 				return err
 			}

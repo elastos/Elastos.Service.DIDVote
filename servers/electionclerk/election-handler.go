@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
-	"github.com/lib/pq/hstore"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -100,19 +100,33 @@ func handlePUTElection(w http.ResponseWriter, r *http.Request, electionID string
 
 func saveElectionToDB(election *Election) error {
 	// Frist transform the tagset into an hstore
-	var tags hstore.Hstore
-	tags.Map = make(map[string]sql.NullString, len(election.TagSet))
+	//var tags hstore.Hstore
+	//tags.Map = make(map[string]sql.NullString, len(election.TagSet))
+	//for key, value := range election.TagSet.Map() {
+	//	tags.Map[key] = sql.NullString{String: value, Valid: true}
+	//}
+	buf := new(bytes.Buffer)
 	for key, value := range election.TagSet.Map() {
-		tags.Map[key] = sql.NullString{String: value, Valid: true}
+		buf.WriteString(key)
+		buf.WriteString("=")
+		buf.WriteString(value)
+		buf.WriteByte('\n')
 	}
-
-	_, err := db.Exec("INSERT INTO elections (election_id, election, startdate, enddate, tags) VALUES ($1, $2, $3, $4, $5)", election.ElectionID, election.String(), election.Start, election.End, tags)
+	tags := ""
+	if buf.Len() > 0 {
+		tags = string(buf.Bytes()[:(buf.Len()-1)])
+	}
+	_, err := db.Exec("INSERT INTO elections (election_id, election, startdate, enddate, tags) VALUES (?, ?, ?, ?, ?)", election.ElectionID, election.String(), election.Start, election.End, tags)
 	if err != nil {
 		return err
 	}
 
 	// Create the sigreqa table for storing signature requests
 	_, err = db.Exec(strings.Replace(sigreqsQuery, "<election-id>", election.ElectionID, -1))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(strings.Replace(sigreqsQueryIndex, "<election-id>", election.ElectionID, -1))
 	if err != nil {
 		return err
 	}
@@ -124,7 +138,7 @@ func saveElectionToDB(election *Election) error {
 
 func handleGETElection(w http.ResponseWriter, r *http.Request, electionID string) {
 	var rawElection []byte
-	err := db.QueryRow("SELECT election FROM elections WHERE election_id = $1", electionID).Scan(&rawElection)
+	err := db.QueryRow("SELECT election FROM elections WHERE election_id = ?", electionID).Scan(&rawElection)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Could not find election with ID "+electionID, http.StatusNotFound)

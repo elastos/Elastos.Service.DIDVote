@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"errors"
 	"io/ioutil"
@@ -8,7 +9,6 @@ import (
 	"strings"
 
 	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
-	"github.com/lib/pq/hstore"
 )
 
 // Main vote handler. A user may GET a single vote, a list of all votes, or PUT (cast) their vote
@@ -138,7 +138,7 @@ func handlePUTVote(w http.ResponseWriter, r *http.Request, electionID string, ba
 
 	// Check the database to see if the ballot already exists
 	var exists int
-	err = db.QueryRow("SELECT 1 FROM ballots_"+electionID+" WHERE ballot_id = $1", ballot.BallotID).Scan(&exists)
+	err = db.QueryRow("SELECT 1 FROM ballots_"+electionID+" WHERE ballot_id = ? ", ballot.BallotID).Scan(&exists)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -201,13 +201,17 @@ func loadBallotFromDB(ElectionID string, ballotID string) (*Ballot, error) {
 }
 
 func saveBallotToDB(ballot *Ballot) error {
-	// Frist transform the tagset into an hstore
-	var tags hstore.Hstore
-	tags.Map = make(map[string]sql.NullString, len(ballot.TagSet))
+	buf := new(bytes.Buffer)
 	for key, value := range ballot.TagSet.Map() {
-		tags.Map[key] = sql.NullString{value, true}
+		buf.WriteString(key)
+		buf.WriteString("=")
+		buf.WriteString(value)
+		buf.WriteByte('\n')
 	}
-
-	_, err := db.Exec("INSERT INTO ballots_"+ballot.ElectionID+" (ballot_id, ballot, tags) VALUES ($1, $2, $3)", ballot.BallotID, ballot.String(), tags)
+	tags := ""
+	if buf.Len() > 0 {
+		tags = string(buf.Bytes()[:(buf.Len()-1)])
+	}
+	_, err := db.Exec("INSERT INTO ballots_"+ballot.ElectionID+" (ballot_id, ballot, tags) VALUES (?, ?, ?)", ballot.BallotID, ballot.String(), tags)
 	return err
 }

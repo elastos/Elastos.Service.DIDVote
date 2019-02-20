@@ -13,16 +13,16 @@ import (
 )
 
 const (
-	schemaQuery = `	CREATE EXTENSION IF NOT EXISTS hstore;
+	schemaQuery = `
 					CREATE TABLE elections (
-					  election_id char(128) UNIQUE NOT NULL,
+					  election_id varchar(128) UNIQUE NOT NULL,
 					  startdate timestamp NOT NULL,
 					  enddate timestamp NOT NULL,
-					  tags hstore, 
+					  tags text, 
 					  election text NOT NULL
 					);
-					CREATE INDEX elections_id_idx ON elections (election_id);
-					CREATE INDEX elections_tags_idx on elections (tags);`
+					`
+	schemaQueryIndex = `CREATE INDEX elections_id_idx ON elections (election_id);`
 
 	sigreqsQuery = `CREATE TABLE sigreqs_<election-id> (
 					  request_id char(64) NOT NULL,
@@ -30,9 +30,8 @@ const (
 					  ballot_hash char(64) NOT NULL,
 					  signature text NOT NULL,
 					  ballot_signature text NOT NULL
-					);
-
-					CREATE INDEX request_id_idx ON sigreqs_<election-id> (request_id);`
+					);`
+	sigreqsQueryIndex = `CREATE INDEX request_id_idx ON sigreqs_<election-id> (request_id);`
 )
 
 var (
@@ -43,13 +42,10 @@ var (
 type Config struct {
 	configFilePath string
 	database       struct {
-		host               string
-		port               int
-		user               string
-		password           string
-		dbname             string
+		driver 			   string
 		sslmode            string
 		maxIdleConnections int
+		connMaxLifetime	   int
 	}
 	port           int        // Listen port -- generally it should be 443
 	adminKeysPath  string     // Path to admin-users public-key PEM file. This file will be published at /admins
@@ -167,7 +163,7 @@ func verifySignatureHeaders(r *http.Request) error {
 
 // Check to see if the election already exists in the database
 func electionExists(electionID string) (bool, error) {
-	err := db.QueryRow("select 1 from elections where election_id = $1 limit 1", electionID).Scan()
+	err := db.QueryRow("select 1 from elections where election_id = ? limit 1", electionID).Scan()
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, nil
