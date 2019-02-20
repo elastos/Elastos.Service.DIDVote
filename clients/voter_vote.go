@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/cryptoballot/cryptoballot/cryptoballot"
+	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"github.com/urfave/cli"
 )
 

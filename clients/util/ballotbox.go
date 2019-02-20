@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cryptoballot/cryptoballot/cryptoballot"
+	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"github.com/phayes/errors"
 )
 
@@ -16,19 +16,19 @@ var (
 	ErrGetBallot = errors.New("ballotbox: Unable to GET ballot")
 )
 
-//// Client provides access to the ballotclerk REST service
-//type Client struct {
-//	BaseURL    string
-//	HTTPClient http.Client
-//}
-//
-//// NewClient creates a new atomx.Client for working with the extract Service
-//func NewClient(baseurl string) *Client {
-//	return &Client{BaseURL: baseurl, HTTPClient: http.Client{}}
-//}
+// Client provides access to the ballotclerk REST service
+type BallotBoxClient struct {
+	BaseURL    string
+	HTTPClient http.Client
+}
+
+// NewClient creates a new atomx.Client for working with the extract Service
+func NewBallotBoxClient(baseurl string) *BallotBoxClient {
+	return &BallotBoxClient{BaseURL: baseurl, HTTPClient: http.Client{}}
+}
 
 // PutBallot PUTs a single ballot into the ballotbox
-func (c *Client) PutBallot(ballot *cryptoballot.Ballot) error {
+func (c *BallotBoxClient) PutBallot(ballot *cryptoballot.Ballot) error {
 	req, err := http.NewRequest("PUT", c.BaseURL+"/vote/"+ballot.ElectionID+"/"+ballot.BallotID, strings.NewReader(ballot.String()))
 	if err != nil {
 		return errors.Wrap(err, ErrPutBallot)
@@ -52,7 +52,7 @@ func (c *Client) PutBallot(ballot *cryptoballot.Ballot) error {
 }
 
 // GetBallot gets a single ballot from the ballotbox
-func (c *Client) GetBallot(electionID string, ballotID string) (*cryptoballot.Ballot, error) {
+func (c *BallotBoxClient) GetBallot(electionID string, ballotID string) (*cryptoballot.Ballot, error) {
 	url := c.BaseURL + "/vote/" + electionID + "/" + ballotID
 	resp, err := c.HTTPClient.Get(url)
 	defer ResponseDrainAndClose(resp)
@@ -79,7 +79,7 @@ func (c *Client) GetBallot(electionID string, ballotID string) (*cryptoballot.Ba
 }
 
 // GetAllBallots gets all ballots for an election
-func (c *Client) GetAllBallots(electionID string) ([]*cryptoballot.Ballot, error) {
+func (c *BallotBoxClient) GetAllBallots(electionID string) ([]*cryptoballot.Ballot, error) {
 	url := c.BaseURL + "/vote/" + electionID
 	resp, err := c.HTTPClient.Get(url)
 	defer ResponseDrainAndClose(resp)

@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"encoding/pem"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/phayes/errors"
 
-	"github.com/cryptoballot/cryptoballot/cryptoballot"
+	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 )
 
 var (
@@ -21,18 +21,18 @@ var (
 )
 
 // Client provides access to the ballotclerk REST service
-type Client struct {
+type BallotclerkClient struct {
 	BaseURL    string
 	HTTPClient http.Client
 }
 
 // NewClient creates a new atomx.Client for working with the extract Service
-func NewClient(baseurl string) *Client {
-	return &Client{BaseURL: baseurl, HTTPClient: http.Client{}}
+func NewBallotclerkClient(baseurl string) *BallotclerkClient {
+	return &BallotclerkClient{BaseURL: baseurl, HTTPClient: http.Client{}}
 }
 
 // GetPublicKey gets public signing key for the ballot clerk
-func (c *Client) GetPublicKey() (cryptoballot.PublicKey, error) {
+func (c *BallotclerkClient) GetPublicKey() (cryptoballot.PublicKey, error) {
 	url := c.BaseURL + "/publickey"
 	resp, err := c.HTTPClient.Get(url)
 	defer ResponseDrainAndClose(resp)
@@ -64,7 +64,7 @@ func (c *Client) GetPublicKey() (cryptoballot.PublicKey, error) {
 }
 
 // PutElection creates a new election
-func (c *Client) PutElection(election *cryptoballot.Election, privKey cryptoballot.PrivateKey) error {
+func (c *BallotclerkClient) PutElection(election *cryptoballot.Election, privKey cryptoballot.PrivateKey) error {
 	// Prepare to PUT the election to the Election Clerk server
 	req, err := http.NewRequest("PUT", c.BaseURL+"/election/"+election.ElectionID, strings.NewReader(election.String()))
 	if err != nil {
@@ -101,7 +101,7 @@ func (c *Client) PutElection(election *cryptoballot.Election, privKey cryptoball
 }
 
 // GetElection gets an election from the ballotclerk
-func (c *Client) GetElection(electionID string) (*cryptoballot.Election, error) {
+func (c *BallotclerkClient) GetElection(electionID string) (*cryptoballot.Election, error) {
 	url := c.BaseURL + "/election/" + electionID
 	resp, err := c.HTTPClient.Get(url)
 	defer ResponseDrainAndClose(resp)
@@ -128,7 +128,7 @@ func (c *Client) GetElection(electionID string) (*cryptoballot.Election, error) 
 }
 
 // PostSignatureRequest POSTs a signature request and returns a FulfulledSignatureRequest
-func (c *Client) PostSignatureRequest(signatureRequest *cryptoballot.SignatureRequest, privKey cryptoballot.PrivateKey) (*cryptoballot.FulfilledSignatureRequest, error) {
+func (c *BallotclerkClient) PostSignatureRequest(signatureRequest *cryptoballot.SignatureRequest, privKey cryptoballot.PrivateKey) (*cryptoballot.FulfilledSignatureRequest, error) {
 	// Prepare to POST the signature request to the Election Clerk server
 	req, err := http.NewRequest("POST", c.BaseURL+"/sign", strings.NewReader(signatureRequest.String()))
 	if err != nil {

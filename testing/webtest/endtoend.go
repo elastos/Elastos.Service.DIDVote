@@ -4,9 +4,8 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/cryptoballot/cryptoballot/clients/ballotbox"
-	"github.com/cryptoballot/cryptoballot/clients/ballotclerk"
-	. "github.com/cryptoballot/cryptoballot/cryptoballot"
+	"github.com/elastos/Elastos.Service.DIDVote/clients/util"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 )
 
 func testEndToEnd() {
@@ -16,7 +15,7 @@ func testEndToEnd() {
 	time.Sleep(2 * time.Second) // Give the electionclerk time to boot-up
 
 	// Create an electionClerk client
-	ballotclerkClient := ballotclerk.NewClient("http://localhost:8000")
+	ballotclerkClient := util.NewBallotclerkClient("http://localhost:8000")
 
 	// Load admin user
 	PEMData, err := ioutil.ReadFile("../data/admins-public.pem")
@@ -139,7 +138,7 @@ func testEndToEnd() {
 	time.Sleep(2 * time.Second) // Give the ballotbox time to boot-up
 
 	// Create ballotbox client
-	ballotboxClient := ballotbox.NewClient("http://localhost:8001")
+	ballotboxClient := util.NewBallotBoxClient("http://localhost:8001")
 
 	// PUT the ballot
 	err = ballotboxClient.PutBallot(ballot)

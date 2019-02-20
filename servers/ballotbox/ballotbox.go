@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/cryptoballot/cryptoballot/cryptoballot"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 )
 
 const (

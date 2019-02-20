@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 
-	. "github.com/cryptoballot/cryptoballot/cryptoballot"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 )
 
 func main() {

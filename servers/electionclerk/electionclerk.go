@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
-	. "github.com/cryptoballot/cryptoballot/cryptoballot"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 )
 
 const (

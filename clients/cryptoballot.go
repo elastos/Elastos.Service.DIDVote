@@ -5,10 +5,8 @@ import (
 	"log"
 	"os"
 	"runtime"
-
-	"github.com/cryptoballot/cryptoballot/clients/ballotbox"
-	"github.com/cryptoballot/cryptoballot/clients/ballotclerk"
-	"github.com/cryptoballot/cryptoballot/cryptoballot"
+	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
+	"github.com/elastos/Elastos.Service.DIDVote/clients/util"
 	"github.com/cryptoballot/entropychecker"
 	"github.com/phayes/decryptpem"
 	"github.com/urfave/cli"
@@ -18,10 +16,10 @@ import (
 var Version = "0.1"
 
 // BallotClerkClient is used to connect to ballotclerk server
-var BallotClerkClient *ballotclerk.Client
+var BallotClerkClient *util.BallotclerkClient
 
 // BallotBoxClient is used to connect to ballotbox server
-var BallotBoxClient *ballotbox.Client
+var BallotBoxClient *util.BallotBoxClient
 
 // PrivateKey for all operations that require a private key
 var PrivateKey cryptoballot.PrivateKey
@@ -112,10 +110,10 @@ func main() {
 		}
 
 		// ballotclerk
-		BallotClerkClient = ballotclerk.NewClient(c.String("ballotclerk"))
+		BallotClerkClient = util.NewBallotclerkClient(c.String("ballotclerk"))
 
 		// Connect to A4D Extract
-		BallotBoxClient = ballotbox.NewClient(c.String("ballotbox"))
+		BallotBoxClient = util.NewBallotBoxClient(c.String("ballotbox"))
 
 		// Privat Key
 		if c.String("key") != "" {

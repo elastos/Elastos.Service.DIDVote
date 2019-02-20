@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"strconv"
 
-	. "github.com/cryptoballot/cryptoballot/cryptoballot"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"github.com/cryptoballot/entropychecker"
 	"github.com/dlintw/goconf"
 	"github.com/lib/pq"

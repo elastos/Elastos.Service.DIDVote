@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"flag"
 	"fmt"
-	. "github.com/cryptoballot/cryptoballot/cryptoballot"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"io"
 	"io/ioutil"
 	"log"

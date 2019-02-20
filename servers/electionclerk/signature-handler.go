@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	. "github.com/cryptoballot/cryptoballot/cryptoballot"
+	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 )
 
 // Handle a signature-request coming from a user

@@ -6,7 +6,7 @@ import (
 	"encoding/pem"
 	"flag"
 	"fmt"
-	"github.com/cryptoballot/cryptoballot/cryptoballot"
+	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"io/ioutil"
 	"log"
 )

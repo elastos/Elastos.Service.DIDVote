@@ -1,4 +1,18 @@
 package: github.com/elastos/Elastos.Service.DIDVote
 import:
 - package: github.com/cryptoballot/entropychecker
+- package: github.com/cryptoballot/fdh
+- package: github.com/cryptoballot/rsablind
+- package: github.com/phayes/errors
+- package: github.com/phayes/freeport
 - package: github.com/phayes/decryptpem
+- package: github.com/urfave/cli
+- package: github.com/Sam-Izdat/govote
+- package: github.com/lib/pq
+- package: github.com/dlintw/goconf
+- package: golang.org/x/crypto
+  repo: https://github.com/golang/crypto.git
+  vcs: git
+- package: golang.org/x/sys
+  repo: https://github.com/golang/sys.git
+  vcs: git
