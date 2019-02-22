@@ -43,8 +43,6 @@ func voteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// returns electionID, BallotID, publicKey (base64 encoded) and an error
-//@@TODO: Move everything from /vote to /ballot and adjust naming of function appropriately
 func parseVoteRequest(r *http.Request) (electionID string, ballotID string, err error) {
 	// Parse URL and route
 	urlparts := strings.Split(r.RequestURI, "/")

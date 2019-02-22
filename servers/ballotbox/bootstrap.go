@@ -40,14 +40,12 @@ func bootstrap() {
 
 	flag.Parse()
 
-	//@@TODO Check to make sure the config file is readable only by this user (unless the user passed --insecure)
 	c, err := NewConfigFromFile(*configPathOpt)
 	if err != nil {
 		log.Fatal("Error parsing config file. ", err)
 	}
 	conf = *c
 
-	//@@TODO: Check to make sure the sslmode is set to "required" (unless the user passed --insecure)
 	// Connect to the database and set-up
 	db, err = sql.Open("mysql", conf.databaseConnectionString())
 	if err != nil {

@@ -135,18 +135,18 @@ func (c *BallotclerkClient) PostSignatureRequest(signatureRequest *cryptoballot.
 	if err != nil {
 		return nil, errors.Wrap(err, ErrPostSignatureRequest)
 	}
-	//reqSig, err := privKey.SignString("POST /sign")
-	//if err != nil {
-	//	return nil, errors.Wrap(err, ErrPostSignatureRequest)
-	//}
-	//pubKey, err := privKey.GetPublicKeyFromPrivateKey()
-	//if err != nil {
-	//	return nil, errors.Wrap(err, ErrPostSignatureRequest)
-	//}
-	//
-	//// Add authentication headers
-	//req.Header.Add("X-Public-Key", string(pubKey.Bytes()))
-	//req.Header.Add("X-Signature", string(reqSig))
+	reqSig, err := privKey.SignString("POST /sign")
+	if err != nil {
+		return nil, errors.Wrap(err, ErrPostSignatureRequest)
+	}
+	pubKey, err := privKey.GetPublicKeyFromPrivateKey()
+	if err != nil {
+		return nil, errors.Wrap(err, ErrPostSignatureRequest)
+	}
+
+	// Add authentication headers
+	req.Header.Add("X-Public-Key", hex.EncodeToString(pubKey.Bytes()))
+	req.Header.Add("X-Signature", hex.EncodeToString(reqSig))
 
 	// Do the request
 	resp, err := c.HTTPClient.Do(req)
