@@ -115,6 +115,17 @@ func handlePUTVote(w http.ResponseWriter, r *http.Request, electionID string, ba
 	}
 	// @@TODO: Check election date
 
+	valid, err := checkElectionDate(electionID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if !valid {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -212,4 +223,15 @@ func saveBallotToDB(ballot *Ballot) error {
 	}
 	_, err := db.Exec("INSERT INTO ballots_"+ballot.ElectionID+" (ballot_id, ballot, tags) VALUES (?, ?, ?)", ballot.BallotID, ballot.String(), tags)
 	return err
+}
+
+func checkElectionDate(electionID string) (bool,error){
+	rows, err := db.Query("select count(*) from elections where election_id = ? and now() between startdate and enddate", electionID)
+	if err!= nil {
+		return false,err
+	}
+	if rows.Next() {
+		return true,nil
+	}
+	return false,nil
 }
