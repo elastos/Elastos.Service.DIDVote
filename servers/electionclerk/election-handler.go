@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/hex"
 	. "github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"io/ioutil"
 	"net/http"
@@ -68,7 +69,7 @@ func handlePUTElection(w http.ResponseWriter, r *http.Request, electionID string
 		http.Error(w, "Election ID mismatch between body and URL", http.StatusBadRequest)
 		return
 	}
-	if election.PublicKey.String() != r.Header.Get("X-Public-Key") {
+	if hex.EncodeToString(election.PublicKey) != r.Header.Get("X-Public-Key") {
 		http.Error(w, "Public Key mismatch between headers and body", http.StatusBadRequest)
 		return
 	}
@@ -81,13 +82,10 @@ func handlePUTElection(w http.ResponseWriter, r *http.Request, electionID string
 	}
 
 	// Check to make sure this admin exists and has permission to administer elections
-	admin := conf.adminUsers.GetUser(election.PublicKey)
-	if admin == nil {
-		http.Error(w, "Could not find admin with the provided public key of "+election.PublicKey.String(), http.StatusForbidden)
-		return
-	}
-	if !admin.HasPerm("election-admin") {
-		http.Error(w, "This user does not have the `election-admin` permission", http.StatusForbidden)
+	//admin := conf.adminUsers.GetUser(election.PublicKey)
+	admin := conf.didPublicKey == hex.EncodeToString(election.PublicKey)
+	if !admin {
+		http.Error(w, "Could not find admin with the provided public key of "+hex.EncodeToString(election.PublicKey), http.StatusForbidden)
 		return
 	}
 
@@ -99,12 +97,6 @@ func handlePUTElection(w http.ResponseWriter, r *http.Request, electionID string
 }
 
 func saveElectionToDB(election *Election) error {
-	// Frist transform the tagset into an hstore
-	//var tags hstore.Hstore
-	//tags.Map = make(map[string]sql.NullString, len(election.TagSet))
-	//for key, value := range election.TagSet.Map() {
-	//	tags.Map[key] = sql.NullString{String: value, Valid: true}
-	//}
 	buf := new(bytes.Buffer)
 	for key, value := range election.TagSet.Map() {
 		buf.WriteString(key)

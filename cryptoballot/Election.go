@@ -2,6 +2,8 @@ package cryptoballot
 
 import (
 	"bytes"
+	"encoding/hex"
+	"github.com/elastos/Elastos.ELA.Utility/crypto"
 	"regexp"
 	"time"
 
@@ -31,8 +33,8 @@ type Election struct {
 	Start      time.Time // Start date & time (RFC-1123 format with a numeric timezone)
 	End        time.Time // End date & time (RFC-1123 format with a numeric timezone)
 	TagSet               // Optional key-value tag-set
-	PublicKey            // The public key of the admin that created this election
-	Signature            // The signature used to create this election
+	PublicKey  []byte    // The did public key of the admin that created this election
+	Signature  []byte    // The signature used to create this election
 }
 
 func NewElection(rawElection []byte) (*Election, error) {
@@ -44,9 +46,9 @@ func NewElection(rawElection []byte) (*Election, error) {
 		electionID string
 		start      time.Time
 		end        time.Time
-		publicKey  PublicKey
+		publicKey  []byte
 		tagSet     TagSet
-		signature  Signature
+		signature  []byte
 	)
 
 	// Split the election into parts seperated by a double linebreak
@@ -112,14 +114,14 @@ func NewElection(rawElection []byte) (*Election, error) {
 	}
 
 	if keySec != 0 {
-		publicKey, err = NewPublicKey(parts[keySec])
+		publicKey, err = hex.DecodeString(string(parts[keySec]))
 		if err != nil {
 			return &Election{}, errors.Wrap(err, ErrElectionInvalidKey)
 		}
 	}
 
 	if signSec != 0 {
-		signature, err = NewSignature(parts[signSec])
+		signature, err = hex.DecodeString(string(parts[signSec]))
 		if err != nil {
 			return &Election{}, errors.Wrap(err, ErrElectionInvalidSig)
 		}
@@ -145,7 +147,12 @@ func (election *Election) VerifySignature() error {
 		return ErrEletionSigNotFound
 	}
 	s := election.StringWithoutSignature()
-	return election.Signature.VerifySignature(election.PublicKey, []byte(s))
+	publicKey , err := crypto.DecodePoint(election.PublicKey)
+	if err != nil {
+		return err
+	}
+	didPublicKey := DIDPublicKey{*publicKey}
+	return didPublicKey.VerifySignature(election.Signature, []byte(s))
 }
 
 // TagSets are optional, check to see if this election has them
@@ -165,7 +172,7 @@ func (election Election) String() string {
 	s := election.StringWithoutSignature()
 
 	if election.HasSignature() {
-		s += "\n\n" + election.Signature.String()
+		s += "\n\n" + hex.EncodeToString(election.Signature)
 	}
 
 	return s
@@ -179,7 +186,7 @@ func (election Election) StringWithoutSignature() string {
 		s += "\n\n" + election.TagSet.String()
 	}
 
-	s += "\n\n" + election.PublicKey.String()
+	s += "\n\n" + hex.EncodeToString(election.PublicKey)
 
 	return s
 }

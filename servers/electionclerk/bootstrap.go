@@ -101,6 +101,12 @@ func NewConfigFromFile(filepath string) (*Config, error) {
 		return nil, err
 	}
 
+	// Parse did public key
+	config.didPublicKey, err = c.GetString("", "didPublicKey")
+	if err != nil {
+		return nil, err
+	}
+
 	// Parse database config options
 	config.database.driver, err = c.GetString("database", "driver")
 	if err != nil {

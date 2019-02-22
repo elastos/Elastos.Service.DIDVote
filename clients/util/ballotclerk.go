@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/hex"
 	"encoding/pem"
 	"io"
 	"io/ioutil"
@@ -64,7 +65,7 @@ func (c *BallotclerkClient) GetPublicKey() (cryptoballot.PublicKey, error) {
 }
 
 // PutElection creates a new election
-func (c *BallotclerkClient) PutElection(election *cryptoballot.Election, privKey cryptoballot.PrivateKey) error {
+func (c *BallotclerkClient) PutElection(election *cryptoballot.Election, privKey cryptoballot.DIDPrivateKey) error {
 	// Prepare to PUT the election to the Election Clerk server
 	req, err := http.NewRequest("PUT", c.BaseURL+"/election/"+election.ElectionID, strings.NewReader(election.String()))
 	if err != nil {
@@ -74,14 +75,14 @@ func (c *BallotclerkClient) PutElection(election *cryptoballot.Election, privKey
 	if err != nil {
 		return errors.Wrap(err, ErrPutElection)
 	}
-	pubKey, err := privKey.PublicKey()
+	pubKey, err := privKey.GetPublicKeyFromPrivateKey()
 	if err != nil {
 		return errors.Wrap(err, ErrPutElection)
 	}
 
 	// Add authentication headers
-	req.Header.Add("X-Public-Key", pubKey.String())
-	req.Header.Add("X-Signature", reqSig.String())
+	req.Header.Add("X-Public-Key", hex.EncodeToString(pubKey.Bytes()))
+	req.Header.Add("X-Signature", hex.EncodeToString(reqSig))
 
 	// Do the request
 	resp, err := c.HTTPClient.Do(req)
@@ -128,24 +129,24 @@ func (c *BallotclerkClient) GetElection(electionID string) (*cryptoballot.Electi
 }
 
 // PostSignatureRequest POSTs a signature request and returns a FulfulledSignatureRequest
-func (c *BallotclerkClient) PostSignatureRequest(signatureRequest *cryptoballot.SignatureRequest, privKey cryptoballot.PrivateKey) (*cryptoballot.FulfilledSignatureRequest, error) {
+func (c *BallotclerkClient) PostSignatureRequest(signatureRequest *cryptoballot.SignatureRequest, privKey cryptoballot.DIDPrivateKey) (*cryptoballot.FulfilledSignatureRequest, error) {
 	// Prepare to POST the signature request to the Election Clerk server
 	req, err := http.NewRequest("POST", c.BaseURL+"/sign", strings.NewReader(signatureRequest.String()))
 	if err != nil {
 		return nil, errors.Wrap(err, ErrPostSignatureRequest)
 	}
-	reqSig, err := privKey.SignString("POST /sign")
-	if err != nil {
-		return nil, errors.Wrap(err, ErrPostSignatureRequest)
-	}
-	pubKey, err := privKey.PublicKey()
-	if err != nil {
-		return nil, errors.Wrap(err, ErrPostSignatureRequest)
-	}
-
-	// Add authentication headers
-	req.Header.Add("X-Public-Key", pubKey.String())
-	req.Header.Add("X-Signature", reqSig.String())
+	//reqSig, err := privKey.SignString("POST /sign")
+	//if err != nil {
+	//	return nil, errors.Wrap(err, ErrPostSignatureRequest)
+	//}
+	//pubKey, err := privKey.GetPublicKeyFromPrivateKey()
+	//if err != nil {
+	//	return nil, errors.Wrap(err, ErrPostSignatureRequest)
+	//}
+	//
+	//// Add authentication headers
+	//req.Header.Add("X-Public-Key", string(pubKey.Bytes()))
+	//req.Header.Add("X-Signature", string(reqSig))
 
 	// Do the request
 	resp, err := c.HTTPClient.Do(req)

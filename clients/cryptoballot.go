@@ -1,15 +1,16 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
+	"github.com/cryptoballot/entropychecker"
+	"github.com/elastos/Elastos.Service.DIDVote/clients/util"
+	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
+	"github.com/phayes/decryptpem"
+	"github.com/urfave/cli"
 	"log"
 	"os"
 	"runtime"
-	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
-	"github.com/elastos/Elastos.Service.DIDVote/clients/util"
-	"github.com/cryptoballot/entropychecker"
-	"github.com/phayes/decryptpem"
-	"github.com/urfave/cli"
 )
 
 // Version specifies the version of this binary
@@ -27,6 +28,12 @@ var PrivateKey cryptoballot.PrivateKey
 // PublicKey derived from PrivateKey
 var PublicKey cryptoballot.PublicKey
 
+// DID PrivateKey
+var DidPrivateKey cryptoballot.DIDPrivateKey
+
+// DID PublicKey derived from DiDPrivateKey
+var DidPublicKey cryptoballot.DIDPublicKey
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "cryptoballot"
@@ -43,6 +50,10 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "key",
+			Value: "",
+		},
+		cli.StringFlag{
+			Name:  "didKey",
 			Value: "",
 		},
 	}
@@ -134,7 +145,19 @@ func main() {
 				log.Fatal(err)
 			}
 		}
-
+		// DID private key
+		var err error
+		DidPrivateKey,err = hex.DecodeString(c.String("didKey"))
+		if err != nil {
+			log.Fatal("Invalid didKey :" + err.Error())
+		}
+		if len(DidPrivateKey) == 32 {
+			var err error
+			DidPublicKey , err = DidPrivateKey.GetPublicKeyFromPrivateKey()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 		return nil
 	}
 

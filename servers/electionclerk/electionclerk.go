@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/elastos/Elastos.ELA.Utility/crypto"
 	"log"
 	"net/http"
 	"strconv"
@@ -54,6 +56,7 @@ type Config struct {
 	readme         []byte     // Static content for serving to the root readme (at "/")
 	signingKeyPath string     // Path to the private key used for signing ballots
 	signingKey     PrivateKey // Signing key. @@TODO: For now we have a single key -eventually there should be one key per election
+	didPublicKey   string	  // admin did public key
 	voterlistURL   string     // URL for the voter-list server
 	ballotboxURL   string     // URL for the ballot-box server
 }
@@ -138,26 +141,30 @@ func verifySignatureHeaders(r *http.Request) error {
 	if rawpk == "" {
 		return errors.New("Missing X-Public-Key header. ")
 	}
-	pk, err := NewPublicKey([]byte(rawpk))
-	if err != nil {
-		return errors.New("Error parsing X-Public-Key header. " + err.Error())
-	}
-
 	rawsig := r.Header.Get("X-Signature")
 	if rawsig == "" {
 		return errors.New("Missing X-Signature header. ")
 	}
-	sig, err := NewSignature([]byte(rawsig))
+	sig, err := hex.DecodeString(rawsig)
+
 	if err != nil {
 		return errors.New("Error parsing X-Signature header. " + err.Error())
 	}
 
+	pub , err := hex.DecodeString(rawpk)
+	if err != nil {
+		return errors.New("invalid did public key")
+	}
+	publicKey , err := crypto.DecodePoint(pub)
+	if err != nil {
+		return err
+	}
+	didPublicKey := DIDPublicKey{*publicKey}
 	// Verify the signature against the request string. For example PUT /vote/1234/939fhdsjkksdkl0903f...
-	err = sig.VerifySignature(pk, []byte(r.Method+" "+r.RequestURI))
+	err = didPublicKey.VerifySignature(sig, []byte(r.Method+" "+r.RequestURI))
 	if err != nil {
 		return errors.New("Cryptographic verification of X-Signature header failed. " + err.Error())
 	}
-
 	return nil
 }
 

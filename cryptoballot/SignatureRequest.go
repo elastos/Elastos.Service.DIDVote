@@ -2,6 +2,9 @@ package cryptoballot
 
 import (
 	"bytes"
+	"encoding/hex"
+	"github.com/elastos/Elastos.ELA.Utility/common"
+	"github.com/elastos/Elastos.ELA.Utility/crypto"
 
 	"github.com/phayes/errors"
 )
@@ -9,9 +12,9 @@ import (
 type SignatureRequest struct {
 	ElectionID  string
 	RequestID   []byte // SHA256 (hex) of base64 encoded public-key
-	PublicKey          // base64 encoded PEM formatted public-key
+	PublicKey   []byte // did public-key of voter
 	BlindBallot        // Blinded ballot (blinded full-domain-hash of the ballot).
-	Signature          // Voter signature for the ballot request
+	Signature   []byte // Voter signature for the ballot request
 }
 
 var (
@@ -34,9 +37,9 @@ func NewSignatureRequest(rawSignatureRequest []byte) (*SignatureRequest, error) 
 		hasSign     bool
 		electionID  string
 		requestID   []byte
-		publicKey   PublicKey
+		publicKey   []byte
 		blindBallot BlindBallot
-		signature   Signature
+		signature   []byte
 	)
 
 	// The SignatureRequest is composed of individual components seperated by double linebreaks
@@ -55,13 +58,14 @@ func NewSignatureRequest(rawSignatureRequest []byte) (*SignatureRequest, error) 
 
 	electionID = string(parts[0])
 
-	publicKey, err = NewPublicKey(parts[2])
+	publicKey, err = hex.DecodeString(string(parts[2]))
 	if err != nil {
 		return &SignatureRequest{}, errors.Wrap(err, ErrSignatureRequestPublicKey)
 	}
 
 	requestID = parts[1]
-	if !bytes.Equal(requestID, publicKey.GetSHA256()) {
+	pub := common.Sha256D(publicKey)
+	if !bytes.Equal(requestID, pub[:]) {
 		return &SignatureRequest{}, ErrSignatureRequestID
 	}
 
@@ -71,7 +75,7 @@ func NewSignatureRequest(rawSignatureRequest []byte) (*SignatureRequest, error) 
 	}
 
 	if hasSign {
-		signature, err = NewSignature(parts[4])
+		signature, err = hex.DecodeString(string(parts[4]))
 		if err != nil {
 			return &SignatureRequest{}, errors.Wrap(err, ErrSignatureRequestSigInvalid)
 		}
@@ -98,7 +102,12 @@ func (sigReq *SignatureRequest) VerifySignature() error {
 	}
 	s := sigReq.StringWithoutSignature()
 
-	return sigReq.Signature.VerifySignature(sigReq.PublicKey, []byte(s))
+	publicKey , err := crypto.DecodePoint(sigReq.PublicKey)
+	if err != nil {
+		return err
+	}
+	didPublicKey := DIDPublicKey{*publicKey}
+	return didPublicKey.VerifySignature(sigReq.Signature, []byte(s))
 }
 
 // Signatures are generally required, but are sometimes optional (for example, for working with the SignatureRequest before it is signed by the voter)
@@ -112,13 +121,13 @@ func (sigReq *SignatureRequest) HasSignature() bool {
 func (sigReq SignatureRequest) String() string {
 	s := sigReq.StringWithoutSignature()
 	if sigReq.HasSignature() {
-		s += "\n\n" + sigReq.Signature.String()
+		s += "\n\n" + hex.EncodeToString(sigReq.Signature)
 	}
 	return s
 }
 
 // StringWithoutSignature returns the SignatureRequest as a string, without the signature of the requesting client.
 func (sigReq SignatureRequest) StringWithoutSignature() string {
-	s := sigReq.ElectionID + "\n\n" + string(sigReq.RequestID) + "\n\n" + sigReq.PublicKey.String() + "\n\n" + sigReq.BlindBallot.String()
+	s := sigReq.ElectionID + "\n\n" + string(sigReq.RequestID) + "\n\n" + hex.EncodeToString(sigReq.PublicKey) + "\n\n" + sigReq.BlindBallot.String()
 	return s
 }
