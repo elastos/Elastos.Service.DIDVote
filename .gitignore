@@ -2,3 +2,7 @@
 glide.lock
 /example/servers/electionclerk
 /example/clients
+/java_clients/.idea/
+/java_clients/target/
+/java_clients/java_clients.iml
+
