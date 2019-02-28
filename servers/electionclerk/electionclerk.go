@@ -66,8 +66,6 @@ func main() {
 	bootstrap()
 
 	// Bootstrap is complete, let's serve some REST
-	//@@TODO BEAST AND CRIME protection
-	//@@TODO SSL only
 	http.HandleFunc("/", rootHandler)               // Displays the readme
 	http.HandleFunc("/sign", signHandler)           // Provides the ability to POST new Signature Requests. See signature-handler.go
 	http.HandleFunc("/election", electionHandler)   // Send to election handler. Used for getting all elections

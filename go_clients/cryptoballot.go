@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/cryptoballot/entropychecker"
-	"github.com/elastos/Elastos.Service.DIDVote/clients/util"
+	"github.com/elastos/Elastos.Service.DIDVote/go_clients/util"
 	"github.com/elastos/Elastos.Service.DIDVote/cryptoballot"
 	"github.com/phayes/decryptpem"
 	"github.com/urfave/cli"

@@ -40,8 +40,6 @@ func electionHandler(w http.ResponseWriter, r *http.Request) {
 		handleGETElection(w, r, electionID)
 	case "PUT":
 		handlePUTElection(w, r, electionID)
-	case "HEAD":
-		//@@TODO: handleHEADElection(w, r, electionID)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -123,7 +121,7 @@ func saveElectionToDB(election *Election) error {
 		return err
 	}
 
-	//@@TODO - tell ballotbox database about election
+	//@@TODO - tell ballotbox database about election , so box can reject election ballot that is not been created in electionclerk server
 
 	return nil
 }

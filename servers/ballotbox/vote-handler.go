@@ -113,8 +113,6 @@ func handlePUTVote(w http.ResponseWriter, r *http.Request, electionID string, ba
 		http.Error(w, "Election not found", http.StatusNotFound)
 		return
 	}
-	// @@TODO: Check election date
-
 	valid, err := checkElectionDate(electionID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

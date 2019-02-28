@@ -42,7 +42,6 @@ func bootstrap() {
 	conf = *config
 
 	// Connect to the database and set-up
-	// @@TODO: Check to make sure the sslmode is set to "required" (unless the user passed --insecure)
 	db, err = sql.Open("mysql", conf.databaseConnectionString())
 	if err != nil {
 		log.Fatal("Database connection error: ", err)
@@ -74,7 +73,6 @@ func bootstrap() {
 	}
 }
 
-// @@TODO Check to make sure the config file is readable only by this user (unless the user passed --insecure)
 func NewConfigFromFile(filepath string) (*Config, error) {
 	config := Config{
 		configFilePath: filepath,

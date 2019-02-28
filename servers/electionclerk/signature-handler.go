@@ -32,8 +32,8 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// @@TODO: Check the validity of the voter with the voter-list server.
-	// @@TODO: Check that this voter has not already retreived a fulfilled signature request.
+	// @@TODO: Check the validity of the voter with the voter-list server. KYC voter
+	// @@TODO: Check that this voter has not already retreived a fulfilled signature request. filter already fulfilled signature request.
 
 	// Sign the ballot
 	ballotSig, err := conf.signingKey.BlindSign(signatureRequest.BlindBallot)
