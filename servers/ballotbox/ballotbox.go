@@ -19,8 +19,10 @@ const (
 					  tags text,
 					  ballot text NOT NULL
 					);
-					`
+	`
+
 	ballotsQueryIndex = `CREATE INDEX ballot_id_idx_<election-id> ON ballots_<election-id> (ballot_id);`
+
 )
 
 var (

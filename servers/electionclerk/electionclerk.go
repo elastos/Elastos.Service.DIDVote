@@ -55,7 +55,7 @@ type Config struct {
 	readmePath     string     // Path to readme file
 	readme         []byte     // Static content for serving to the root readme (at "/")
 	signingKeyPath string     // Path to the private key used for signing ballots
-	signingKey     PrivateKey // Signing key. @@TODO: For now we have a single key -eventually there should be one key per election
+	signingKey     PrivateKey // Signing key.
 	didPublicKey   string	  // admin did public key
 	voterlistURL   string     // URL for the voter-list server
 	ballotboxURL   string     // URL for the ballot-box server
@@ -72,6 +72,7 @@ func main() {
 	http.HandleFunc("/election/", electionHandler)  // Creating elections and viewing election metadata. See election-handler.go
 	http.HandleFunc("/admins", adminsHandler)       // View admins, their public keys and their perms
 	http.HandleFunc("/publickey", publicKeyHandler) // Reports this servers public key
+	// @@TODO add a api so box can check if the election is exist or not
 
 	log.Println("Election Clerk server started listening on port", conf.port)
 

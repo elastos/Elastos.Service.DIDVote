@@ -33,8 +33,15 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// @@TODO: Check the validity of the voter with the voter-list server. KYC voter
-	// @@TODO: Check that this voter has not already retreived a fulfilled signature request. filter already fulfilled signature request.
-
+	isRs , err := isRetreivedSignature(signatureRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if isRs {
+		http.Error(w, "already received fulfilled signature request", http.StatusBadRequest)
+		return
+	}
 	// Sign the ballot
 	ballotSig, err := conf.signingKey.BlindSign(signatureRequest.BlindBallot)
 	if err != nil {
@@ -48,8 +55,27 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 		BallotSignature:  ballotSig,
 	}
 
-	//@@TODO: store the fulfilledsignatureRequest in the database
+	err = saveSRToDb(fulfilled)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	fmt.Fprint(w, fulfilled.String())
 	return
+}
+
+func isRetreivedSignature(request *SignatureRequest) (bool,error) {
+	r, err := db.Query("select * from sigreqs_"+request.ElectionID + " where request_id = ? and public_key = ?" , request.RequestID,request.PublicKey)
+	if err != nil {
+		return false, err
+	}
+	return r.Next(),nil
+}
+
+func saveSRToDb(request *FulfilledSignatureRequest)  error {
+
+	_ , err := db.Exec("insert into sigreqs_"+request.ElectionID + " values(?,?,?,?,?)",request.RequestID,request.PublicKey,request.BlindBallot,request.Signature,request.BallotSignature)
+
+	return err
 }

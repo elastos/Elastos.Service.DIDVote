@@ -120,9 +120,6 @@ func saveElectionToDB(election *Election) error {
 	if err != nil {
 		return err
 	}
-
-	//@@TODO - tell ballotbox database about election , so box can reject election ballot that is not been created in electionclerk server
-
 	return nil
 }
 
