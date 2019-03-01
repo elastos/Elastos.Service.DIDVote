@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -66,7 +67,7 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func isRetreivedSignature(request *SignatureRequest) (bool,error) {
-	r, err := db.Query("select * from sigreqs_"+request.ElectionID + " where request_id = ? and public_key = ?" , request.RequestID,request.PublicKey)
+	r, err := db.Query("select * from sigreqs_"+request.ElectionID + " where request_id = ? and public_key = ?" , hex.EncodeToString(request.RequestID),hex.EncodeToString(request.PublicKey))
 	if err != nil {
 		return false, err
 	}
@@ -75,7 +76,7 @@ func isRetreivedSignature(request *SignatureRequest) (bool,error) {
 
 func saveSRToDb(request *FulfilledSignatureRequest)  error {
 
-	_ , err := db.Exec("insert into sigreqs_"+request.ElectionID + " values(?,?,?,?,?)",request.RequestID,request.PublicKey,request.BlindBallot,request.Signature,request.BallotSignature)
+	_ , err := db.Exec("insert into sigreqs_"+request.ElectionID + " values(?,?,?,?,?)",hex.EncodeToString(request.RequestID),hex.EncodeToString(request.PublicKey),hex.EncodeToString(request.BlindBallot),hex.EncodeToString(request.Signature),hex.EncodeToString(request.BallotSignature))
 
 	return err
 }

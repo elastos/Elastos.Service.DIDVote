@@ -108,7 +108,6 @@ func handleGETVote(w http.ResponseWriter, r *http.Request, electionID string, ba
 
 func handlePUTVote(w http.ResponseWriter, r *http.Request, electionID string, ballotID string) {
 	// @@TODO check if electionID is exist in electionclerk
-
 	// Check to make sure the Election exists
 	_, ok := conf.elections[electionID]
 	if !ok {

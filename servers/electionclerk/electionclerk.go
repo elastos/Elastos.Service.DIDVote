@@ -22,17 +22,17 @@ const (
 					  enddate timestamp NOT NULL,
 					  tags text, 
 					  election text NOT NULL
-					);
+					)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 					`
 	schemaQueryIndex = `CREATE INDEX elections_id_idx ON elections (election_id);`
 
 	sigreqsQuery = `CREATE TABLE sigreqs_<election-id> (
-					  request_id char(64) NOT NULL,
-					  public_key text NOT NULL, 
-					  ballot_hash char(64) NOT NULL,
+					  request_id varchar(64) NOT NULL,
+					  public_key varchar(66) NOT NULL, 
+					  ballot_hash text NOT NULL,
 					  signature text NOT NULL,
 					  ballot_signature text NOT NULL
-					);`
+					)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
 	sigreqsQueryIndex = `CREATE INDEX request_id_idx ON sigreqs_<election-id> (request_id);`
 )
 

@@ -18,7 +18,7 @@ const (
 					  ballot_id varchar(128) NOT NULL, -- TODO: change to 64 on move to SHA256
 					  tags text,
 					  ballot text NOT NULL
-					);
+					)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 	`
 
 	ballotsQueryIndex = `CREATE INDEX ballot_id_idx_<election-id> ON ballots_<election-id> (ballot_id);`
