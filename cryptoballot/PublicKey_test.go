@@ -37,6 +37,7 @@ func TestGoodPublicKey(t *testing.T) {
 	}
 
 	hash := pk.GetSHA256()
+	println(string(hash))
 	if !bytes.Equal(hash, goodPublicKeySHA) {
 		t.Errorf("BallotID does not match SHA256. Got " + string(hash))
 	}

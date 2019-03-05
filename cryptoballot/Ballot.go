@@ -22,8 +22,8 @@ var (
 	MaxBallotSize = MaxElectionIDSize + MaxBallotIDSize + (maxVoteSize) + (64 * (MaxTagKeySize + MaxTagValueSize + 1)) + base64.StdEncoding.EncodedLen(1024) + (4*2 + 64 + 64)
 	ValidBallotID = regexp.MustCompile(`^[0-9a-zA-Z\-\.\[\]_~:/?#@!$&'()*+,;=]+$`) // Regex for valid characters. More or less the same as RFC 3986, sec 2.
 
-	ErrBallotTooBig        = errors.Newf("This ballot is too big. Maximum ballot size is %i bytes", MaxBallotSize)
-	ErrBallotIDTooBig      = errors.Newf("Ballot ID is too big. Maximum ballot-id size is %i characters", MaxBallotIDSize)
+	ErrBallotTooBig        = errors.Newf("This ballot is too big. Maximum ballot size is %d bytes", MaxBallotSize)
+	ErrBallotIDTooBig      = errors.Newf("Ballot ID is too big. Maximum ballot-id size is %d characters", MaxBallotIDSize)
 	ErrBallotInvalid       = errors.New("Invalid ballot format")
 	ErrBallotIDInvalid     = errors.New("Ballot ID contains illigal characters. Valid characters are as per RFC 3986, sec 2: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=")
 	ErrBallotInvalidVote   = errors.New("Cannot parse Cote in ballot")

@@ -19,8 +19,8 @@ type Tag struct {
 type TagSet []Tag
 
 var (
-	ErrTagKeyTooBig    = errors.Newf("Tag key too long. Maximum tag key size is $i characters", MaxTagKeySize)
-	ErrTagValTooBig    = errors.Newf("Tag value too long. Maximum tag value size is $i characters", MaxTagValueSize)
+	ErrTagKeyTooBig    = errors.Newf("Tag key too long. Maximum tag key size is %d characters", MaxTagKeySize)
+	ErrTagValTooBig    = errors.Newf("Tag value too long. Maximum tag value size is %d characters", MaxTagValueSize)
 	ErrTagMalformed    = errors.New("Malformed tag")
 	ErrTagKeyMalformed = errors.New("Malformed tag key") //@@TODO: Actually put some limits around allowed-charcters for keys
 	ErrTagKeyNotFound  = errors.New("Missing tag key")

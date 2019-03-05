@@ -20,7 +20,7 @@ var maxVoteSize = (MaxVoteOptions * MaxVoteBytes) + MaxVoteOptions
 type Vote []string
 
 var (
-	ErrVoteTooBig         = errors.Newf("Vote has too many bytes. A vote may have a maximum of %i characters, including seperators", maxVoteSize)
+	ErrVoteTooBig         = errors.Newf("Vote has too many bytes. A vote may have a maximum of %d characters, including seperators", maxVoteSize)
 	ErrVoteTooManyOptions = errors.Newf("Vote has too many options")
 	ErrVoteOptionTooBig   = errors.Newf("Vote option has too many characters")
 )
@@ -33,11 +33,11 @@ func NewVote(rawVote []byte) (Vote, error) {
 	}
 	vote := Vote(strings.Split(string(rawVote), "\n"))
 	if len(vote) > MaxVoteOptions {
-		return Vote{}, errors.Wrapf(ErrVoteTooManyOptions, "A vote may have a maximum of %i option lines", MaxVoteOptions)
+		return Vote{}, errors.Wrapf(ErrVoteTooManyOptions, "A vote may have a maximum of %d option lines", MaxVoteOptions)
 	}
 	for i, voteItem := range vote {
 		if len(voteItem) > MaxVoteBytes {
-			return Vote{}, errors.Wrapf(ErrVoteOptionTooBig, "Vote item as position %i is too large. Each vote-item line may have a maximum of %i bytes", i, MaxVoteBytes)
+			return Vote{}, errors.Wrapf(ErrVoteOptionTooBig, "Vote item as position %d is too large. Each vote-item line may have a maximum of %d bytes", i, MaxVoteBytes)
 		}
 	}
 	return vote, nil

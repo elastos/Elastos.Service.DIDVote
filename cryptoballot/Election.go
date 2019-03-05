@@ -17,7 +17,7 @@ const (
 var (
 	ValidElectionID = regexp.MustCompile(`^[0-9a-z_]+$`) // Regex for valid characters. We use this ID to construct the name of a table, so we need to limit allowed characters.
 
-	ErrElectionIDTooBig      = errors.Newf("Invalid ElectionID. Too many characters. Maximum is %i characters", MaxElectionIDSize)
+	ErrElectionIDTooBig      = errors.Newf("Invalid ElectionID. Too many characters. Maximum is %d characters", MaxElectionIDSize)
 	ErrEelectionInvalid      = errors.New("Cannot parse election. Invalid format")
 	ErrElectionIDInvalid     = errors.New("ElectionID contains illigal characters. Only lowercase alpha-numeric characters allowed")
 	ErrElectionStartInvalid  = errors.New("Invalid election start time")

@@ -50,7 +50,7 @@ func NewPublicKey(base64PublicKey []byte) (PublicKey, error) {
 		panic("MinPublicKeySize has been set less than the allowed absoluteMinPublicKeySize of 2048")
 	}
 	if keylen < MinPublicKeySize {
-		return nil, errors.Wrapf(ErrPubicMinKeySize, "Please use at least %s bits for public-key", MinPublicKeySize)
+		return nil, errors.Wrapf(ErrPubicMinKeySize, "Please use at least %d bits for public-key", MinPublicKeySize)
 	}
 
 	return pk, nil
@@ -99,7 +99,8 @@ func (pk PublicKey) GetSHA256() []byte {
 	h := sha256.New()
 	h.Write([]byte(pk.String()))
 	sha256hex := make([]byte, hex.EncodedLen(sha256.Size))
-	hex.Encode(sha256hex, h.Sum(nil))
+	sum := h.Sum(nil)
+	hex.Encode(sha256hex, sum)
 	return sha256hex
 }
 
