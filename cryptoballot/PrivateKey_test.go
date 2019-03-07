@@ -12,31 +12,19 @@ import (
 var (
 	goodPrivateKey = []byte(`
 -----BEGIN RSA PRIVATE KEY-----
-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
+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
 -----END RSA PRIVATE KEY-----
 `)
 	badPrivateKey  = []byte("IAMNOTAKEY")
@@ -46,7 +34,21 @@ oofx/v7+fsI+xEvjJs1Ga2JD1lY4w3OTV1GK4tJNkqAdgEBu0WDo9rWlkAy5XxTQ
 
 func TestGoodPrivateKey(t *testing.T) {
 
+	//priv, err := GeneratePrivateKey(1024)
+	//if err != nil {
+	//	t.Error(err)
+	//	return
+	//}
+	//println(priv.String())
+
 	priv, err := NewPrivateKey(goodPrivateKey)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	pub, err := priv.PublicKey()
+	println("pub:"+pub.String())
 	if err != nil {
 		t.Error(err)
 		return
@@ -60,18 +62,13 @@ func TestGoodPrivateKey(t *testing.T) {
 		t.Errorf("Private Key does not survive round trip from string and back")
 	}
 
-	message := "ATTACK AT DAWN"
-	sig, err := priv.SignString(message)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	pub, err := priv.PublicKey()
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	message := "hello,world"
+	//sig, err := priv.SignString(message)
+	//if err != nil {
+	//	t.Error(err)
+	//	return
+	//}
+	sig , _:= NewSignature([]byte(`l0Zpl7w2uNrFr0Tx9QBr04+h4PJ3nZisVxGnenqo2N4oOftEAGfEiiBUoCSbW/A5sdPOFUl61cINqzRbWYK5ppjyrjjDW7dVWsypbe/LDiIbP7y/yZyDXqKaOC5zGuIfBC0Sq/nJqoAESWIbivRdS5UqA3SCcGM8GakUzG1LZwU=`))
 
 	err = sig.VerifySignature(pub, []byte(message))
 	if err != nil {

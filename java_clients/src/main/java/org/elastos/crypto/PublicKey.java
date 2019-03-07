@@ -8,17 +8,18 @@ package org.elastos.crypto;
 
 
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.PublicKeyFactory;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.bouncycastle.util.io.pem.PemWriter;
 import sun.security.util.DerValue;
 import sun.security.x509.X509Key;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.security.KeyFactory;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 /**
  * clark
@@ -38,12 +39,16 @@ public class PublicKey {
 
     /**
      * get public key from base64 encoded public key
-     * @param base64PublicKey
+     * @param pem
      * @throws Exception
      */
-    public PublicKey(byte[] base64PublicKey) throws Exception {
-        Base64.Decoder decoder = Base64.getDecoder();
-        this.pub = decoder.decode(base64PublicKey);
+    public PublicKey(byte[] pem) throws Exception {
+        PemReader reader = new PemReader(new InputStreamReader(new ByteArrayInputStream(pem)));
+        PemObject obj = reader.readPemObject();
+        if (!"PUBLIC KEY".equals(obj.getType())){
+            throw new RuntimeException(ErrPublicKeyInvalidPEM.getMessage() + " Actual type :" + obj.getType());
+        }
+        this.pub = obj.getContent();
         int keyLength= this.keyLength();
         if(MinPublicKeySize < absoluteMinPublicKeySize){
             throw new RuntimeException("MinPublicKeySize has been set less than the allowed absoluteMinPublicKeySize of 2048");
@@ -62,9 +67,6 @@ public class PublicKey {
         this.pub = rsaPub.getEncoded();
     }
 
-    public PublicKey(String pemfile) throws Exception{
-        this.pub = getPemPublicKey(pemfile).getEncoded();
-    }
 
     public int keyLength()  throws Exception{
         RSAPublicKey rsaPub = this.getCryptoKey();
@@ -87,8 +89,14 @@ public class PublicKey {
         return false;
     }
 
-    public String string(){
-        return Base64.getEncoder().encodeToString(this.pub);
+    public String string() throws Exception{
+        PemObject pemObject = new PemObject("PUBLIC KEY", this.pub);
+        StringWriter stringWriter = new StringWriter();
+        PemWriter pemWriter = new PemWriter(stringWriter);
+        pemWriter.writeObject(pemObject);
+        pemWriter.close();
+        String pemString = stringWriter.toString();
+        return pemString;
     }
 
     public byte[] getSHA256() throws Exception{
@@ -98,24 +106,9 @@ public class PublicKey {
         return Hex.encodeHexString(digieted).getBytes();
     }
 
-    public  RSAPublicKey getPemPublicKey(String pemfile) throws Exception {
-        File f = new File(pemfile);
-        FileInputStream fis = new FileInputStream(f);
-        DataInputStream dis = new DataInputStream(fis);
-        byte[] keyBytes = new byte[(int) f.length()];
-        dis.readFully(keyBytes);
-        dis.close();
-
-        String temp = new String(keyBytes);
-        String publicKeyPEM = temp.replace("-----BEGIN PUBLIC KEY-----\n", "");
-        publicKeyPEM = publicKeyPEM.replace("-----END PUBLIC KEY-----", "");
-
-
-        byte [] decoded = Base64.getDecoder().decode(publicKeyPEM);
-
-        X509EncodedKeySpec spec =
-                new X509EncodedKeySpec(decoded);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        return (RSAPublicKey) kf.generatePublic(spec);
+    public static AsymmetricKeyParameter loadPublicKey(String publicKey) throws Exception{
+        InputStream is = new DataInputStream(new ByteArrayInputStream(publicKey.getBytes("utf-8")));
+        SubjectPublicKeyInfo spki = (SubjectPublicKeyInfo) Kit.readPemObject(is);
+        return PublicKeyFactory.createKey(spki);
     }
 }
