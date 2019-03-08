@@ -2,6 +2,7 @@ package cryptoballot
 
 import (
 	"crypto"
+	"encoding/base64"
 	"strings"
 	"testing"
 
@@ -63,12 +64,13 @@ func TestGoodPrivateKey(t *testing.T) {
 	}
 
 	message := "hello,world"
-	//sig, err := priv.SignString(message)
-	//if err != nil {
-	//	t.Error(err)
-	//	return
-	//}
-	sig , _:= NewSignature([]byte(`l0Zpl7w2uNrFr0Tx9QBr04+h4PJ3nZisVxGnenqo2N4oOftEAGfEiiBUoCSbW/A5sdPOFUl61cINqzRbWYK5ppjyrjjDW7dVWsypbe/LDiIbP7y/yZyDXqKaOC5zGuIfBC0Sq/nJqoAESWIbivRdS5UqA3SCcGM8GakUzG1LZwU=`))
+	sig, err := priv.SignString(message)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	println(base64.StdEncoding.EncodeToString(sig))
+	//sig , _:= NewSignature([]byte(`l0Zpl7w2uNrFr0Tx9QBr04+h4PJ3nZisVxGnenqo2N4oOftEAGfEiiBUoCSbW/A5sdPOFUl61cINqzRbWYK5ppjyrjjDW7dVWsypbe/LDiIbP7y/yZyDXqKaOC5zGuIfBC0Sq/nJqoAESWIbivRdS5UqA3SCcGM8GakUzG1LZwU=`))
 
 	err = sig.VerifySignature(pub, []byte(message))
 	if err != nil {

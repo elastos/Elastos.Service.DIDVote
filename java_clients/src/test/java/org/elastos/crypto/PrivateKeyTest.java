@@ -46,13 +46,22 @@ public class PrivateKeyTest {
         Assert.assertFalse("Private key is blank ", privateKey.isEmpty());
 
         PublicKey pub = privateKey.publicKey();
+        System.out.println(pub.string());
         String message = "hello,world";
         byte[] signed = privateKey.signBytes(message.getBytes());
+        System.out.println(Base64.getEncoder().encodeToString(signed));
         Signature signature = new Signature(signed);
         System.out.println(signature.string());
         Assert.assertTrue(signature.VerifySignature(pub,message));
 
     }
+    @Test
+    public void TestPrivKey() throws Exception{
 
+        PrivateKey privateKey = new PrivateKey(1024);
+
+        privateKey.getCryptoKey();
+
+    }
 
 }

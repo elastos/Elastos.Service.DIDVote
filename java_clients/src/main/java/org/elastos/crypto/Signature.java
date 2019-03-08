@@ -20,8 +20,8 @@ public class Signature {
 
     private byte[] signature;
 
-    public Signature(byte[] base64Signature){
-        this.signature =base64Signature;
+    public Signature(byte[] signed){
+        this.signature =signed;
     }
 
     public boolean VerifySignature(PublicKey publicKey,String message) throws Exception{
@@ -29,12 +29,11 @@ public class Signature {
     }
 
     private boolean verify(byte[] msg,PublicKey publicKey) throws Exception {
-        AsymmetricKeyParameter param = PublicKey.loadPublicKey(publicKey.string());
-        RSADigestSigner signer = new RSADigestSigner(new SHA256Digest());
-        signer.init(false, param);
-        signer.update(msg, 0, msg.length);
-        boolean isValidSignature = signer.verifySignature(signature);
-        return isValidSignature;
+        java.security.Signature publicSignature = java.security.Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey.getCryptoKey());
+        publicSignature.update(msg);
+
+        return publicSignature.verify(this.signature);
     }
 
     public String string(){

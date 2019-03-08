@@ -13,17 +13,27 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.signers.RSADigestSigner;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
+import org.bouncycastle.jcajce.provider.asymmetric.RSA;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPrivateCrtKey;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+import sun.security.rsa.RSAPrivateCrtKeyImpl;
+import sun.security.util.DerValue;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.*;
+import java.security.Signature;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 
 /**
  * clark
@@ -71,11 +81,12 @@ public class PrivateKey {
         return this.priv;
     }
 
-    public java.security.PrivateKey getCryptoKey() throws Exception{
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
-        PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(this.priv);
-        return kf.generatePrivate(ks);
+    public RSAPrivateKey getCryptoKey() throws Exception{
+        PrivateKeyInfo pkInfo = PrivateKeyInfoFactory.createPrivateKeyInfo(loadPrivateKey(string()));
+        byte[] primPriv = pkInfo.toASN1Primitive().getEncoded();
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKey privateKey = (RSAPrivateKey)kf.generatePrivate(new PKCS8EncodedKeySpec(primPriv));
+        return privateKey;
     }
 
     public boolean isEmpty(){
@@ -87,7 +98,7 @@ public class PrivateKey {
 
     public PublicKey publicKey() throws Exception {
 
-        BCRSAPrivateCrtKey privateKey = (BCRSAPrivateCrtKey)getCryptoKey();
+        RSAPrivateCrtKey privateKey = (RSAPrivateCrtKey)getCryptoKey();
 
         RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(privateKey.getModulus(),privateKey.getPublicExponent()));
 
@@ -100,11 +111,11 @@ public class PrivateKey {
     }
 
     public byte[] signBytes(byte[] dataByte) throws Exception{
-        RSADigestSigner signer = new RSADigestSigner(new SHA256Digest());
-        signer.init(true, loadPrivateKey(this.string()));
-        signer.update(dataByte, 0, dataByte.length);
-        byte[] signature = signer.generateSignature();
-        return signature;
+        RSAPrivateKey rsaPrivateKey = getCryptoKey();
+        Signature signature = java.security.Signature.getInstance("SHA256withRSA");
+        signature.initSign(rsaPrivateKey);
+        signature.update(dataByte);
+        return signature.sign();
     }
 
     private AsymmetricKeyParameter loadPrivateKey(String pem) throws Exception{

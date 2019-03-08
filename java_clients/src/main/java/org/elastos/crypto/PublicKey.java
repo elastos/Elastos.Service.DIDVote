@@ -18,8 +18,12 @@ import sun.security.util.DerValue;
 import sun.security.x509.X509Key;
 
 import java.io.*;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 /**
  * clark
@@ -74,8 +78,9 @@ public class PublicKey {
     }
 
     public RSAPublicKey getCryptoKey() throws Exception{
-        DerValue derValue = new DerValue(this.pub);
-        return (RSAPublicKey)X509Key.parse(derValue);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKey publicKey = (RSAPublicKey)kf.generatePublic(new X509EncodedKeySpec(this.pub));
+        return publicKey;
     }
 
     public byte[] getPublicKey(){
